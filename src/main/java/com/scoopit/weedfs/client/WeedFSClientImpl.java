@@ -19,12 +19,15 @@
  */
 package com.scoopit.weedfs.client;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scoopit.weedfs.client.caching.LookupCache;
+import com.scoopit.weedfs.client.net.AssignResult;
+import com.scoopit.weedfs.client.net.LookupResult;
+import com.scoopit.weedfs.client.net.WriteResult;
+import com.scoopit.weedfs.client.status.MasterStatus;
+import com.scoopit.weedfs.client.status.VolumeStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -35,15 +38,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scoopit.weedfs.client.caching.LookupCache;
-import com.scoopit.weedfs.client.net.AssignResult;
-import com.scoopit.weedfs.client.net.LookupResult;
-import com.scoopit.weedfs.client.net.WriteResult;
-import com.scoopit.weedfs.client.status.MasterStatus;
-import com.scoopit.weedfs.client.status.VolumeStatus;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.List;
 
 class WeedFSClientImpl implements WeedFSClient {
 
@@ -77,8 +76,10 @@ class WeedFSClientImpl implements WeedFSClient {
             HttpResponse response = httpClient.execute(get);
 
             ObjectMapper mapper = new ObjectMapper();
+            String content = getContentOrNull(response);
+            
             try {
-                AssignResult result = mapper.readValue(response.getEntity().getContent(), AssignResult.class);
+                AssignResult result = mapper.readValue(content, AssignResult.class);
 
                 if (result.error != null) {
                     throw new WeedFSException(result.error);
@@ -86,7 +87,7 @@ class WeedFSClientImpl implements WeedFSClient {
 
                 return new Assignation(result);
             } catch (JsonMappingException | JsonParseException e) {
-                throw new WeedFSException("Unable to parse JSON from weed-fs", e);
+                throw new WeedFSException("Unable to parse JSON from weed-fs from: " + content, e);
             }
         } finally {
             get.abort();
@@ -134,9 +135,10 @@ class WeedFSClientImpl implements WeedFSClient {
         try {
             HttpResponse response = httpClient.execute(get);
 
+            String content = getContentOrNull(response);
             ObjectMapper mapper = new ObjectMapper();
             try {
-                LookupResult result = mapper.readValue(response.getEntity().getContent(), LookupResult.class);
+                LookupResult result = mapper.readValue(content, LookupResult.class);
 
                 if (result.error != null) {
                     throw new WeedFSException(result.error);
@@ -148,7 +150,7 @@ class WeedFSClientImpl implements WeedFSClient {
 
                 return result.locations;
             } catch (JsonMappingException | JsonParseException e) {
-                throw new WeedFSException("Unable to parse JSON from weed-fs", e);
+                throw new WeedFSException("Unable to parse JSON from weed-fs from: " + content, e);
             }
         } finally {
             get.abort();
@@ -219,9 +221,11 @@ class WeedFSClientImpl implements WeedFSClient {
 
         try {
             HttpResponse response = httpClient.execute(post);
+
+            String content = getContentOrNull(response);
             ObjectMapper mapper = new ObjectMapper();
             try {
-                WriteResult result = mapper.readValue(response.getEntity().getContent(), WriteResult.class);
+                WriteResult result = mapper.readValue(content, WriteResult.class);
 
                 if (result.error != null) {
                     throw new WeedFSException(result.error);
@@ -229,7 +233,7 @@ class WeedFSClientImpl implements WeedFSClient {
 
                 return result.size;
             } catch (JsonMappingException | JsonParseException e) {
-                throw new WeedFSException("Unable to parse JSON from weed-fs", e);
+                throw new WeedFSException("Unable to parse JSON from weed-fs from: " + content, e);
             }
         } finally {
             post.abort();
@@ -279,12 +283,13 @@ class WeedFSClientImpl implements WeedFSClient {
                 throw new IOException("Not 200 status recieved for master status url: " + url.toExternalForm());
             }
 
+            String content = getContentOrNull(response);
             ObjectMapper mapper = new ObjectMapper();
             try {
-                return mapper.readValue(response.getEntity().getContent(), MasterStatus.class);
+                return mapper.readValue(content, MasterStatus.class);
 
             } catch (JsonMappingException | JsonParseException e) {
-                throw new WeedFSException("Unable to parse JSON from weed-fs", e);
+                throw new WeedFSException("Unable to parse JSON from weed-fs from: " + content, e);
             }
         } finally {
             get.abort();
@@ -310,15 +315,26 @@ class WeedFSClientImpl implements WeedFSClient {
                 throw new IOException("Not 200 status recieved for master status url: " + url.toString());
             }
 
+            String content = getContentOrNull(response);
             ObjectMapper mapper = new ObjectMapper();
             try {
-                return mapper.readValue(response.getEntity().getContent(), VolumeStatus.class);
+                return mapper.readValue(content, VolumeStatus.class);
 
             } catch (JsonMappingException | JsonParseException e) {
-                throw new WeedFSException("Unable to parse JSON from weed-fs", e);
+                throw new WeedFSException("Unable to parse JSON from weed-fs from: " + content, e);
             }
         } finally {
             get.abort();
+        }
+    }
+
+    private String getContentOrNull(HttpResponse response) throws IOException {
+        return convertStreamToString(response.getEntity().getContent());
+    }
+
+    private static String convertStreamToString(java.io.InputStream is) {
+        try (java.util.Scanner s = new java.util.Scanner(is, "UTF-8")) {
+            return s.useDelimiter("\\A").hasNext() ? s.next() : "";
         }
     }
 }

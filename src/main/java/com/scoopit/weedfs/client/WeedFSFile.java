@@ -29,6 +29,11 @@ public class WeedFSFile {
         this.fid = fid;
     }
 
+    public WeedFSFile(String fid, int version) {
+        this.fid = fid;
+        this.version = version;
+    }
+
     public long getVolumeId() {
         int pos = fid.indexOf(',');
         if (pos == -1) {
@@ -44,6 +49,10 @@ public class WeedFSFile {
     @Override
     public String toString() {
         return "WeedFSFile [fid=" + fid + ", version=" + version + "]";
+    }
+
+    public String getFidWithVersion() {
+        return fid + "_" + version;
     }
 
 }

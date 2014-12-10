@@ -20,5 +20,6 @@
 package com.scoopit.weedfs.client.net;
 
 public abstract class Result {
+    public String name;
     public String error;
 }
