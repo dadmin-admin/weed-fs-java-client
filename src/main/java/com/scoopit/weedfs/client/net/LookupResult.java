@@ -19,12 +19,13 @@
  */
 package com.scoopit.weedfs.client.net;
 
-import java.util.List;
-
 import com.scoopit.weedfs.client.Location;
+
+import java.util.List;
 
 public class LookupResult extends Result {
 
+    public long volumeId;
     public List<Location> locations;
 
 }

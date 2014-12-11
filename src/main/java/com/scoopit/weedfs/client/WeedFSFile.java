@@ -22,11 +22,12 @@ package com.scoopit.weedfs.client;
 public class WeedFSFile {
 
     public final String fid;
-
+    private long volumeId = 0;
+    private String cookie = null;
     public int version = 0;
 
     public WeedFSFile(String fid) {
-        this.fid = fid;
+        this(fid, 0);
     }
 
     public WeedFSFile(String fid, int version) {
@@ -35,15 +36,32 @@ public class WeedFSFile {
     }
 
     public long getVolumeId() {
-        int pos = fid.indexOf(',');
-        if (pos == -1) {
-            throw new IllegalArgumentException("Cannot parse fid: " + fid);
+        if (volumeId == 0) {
+            int pos = fid.indexOf(',');
+            if (pos == -1) {
+                throw new IllegalArgumentException("Cannot parse fid: " + fid);
+            }
+            try {
+                volumeId = Long.parseLong(fid.substring(0, pos));
+            } catch (NumberFormatException nfe) {
+                throw new IllegalArgumentException("Cannot parse fid: " + fid, nfe);
+            }
         }
-        try {
-            return Long.parseLong(fid.substring(0, pos));
-        } catch (NumberFormatException nfe) {
-            throw new IllegalArgumentException("Cannot parse fid: " + fid, nfe);
+
+        return volumeId;
+    }
+
+    public String getCookie() {
+        if (cookie == null) {
+            int pos = fid.indexOf(',');
+            if (pos == -1) {
+                throw new IllegalArgumentException("Cannot parse fid: " + fid);
+            }
+
+            cookie = fid.substring(pos + 1);
         }
+
+        return cookie;
     }
 
     @Override

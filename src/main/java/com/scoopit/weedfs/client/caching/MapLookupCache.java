@@ -1,9 +1,9 @@
 package com.scoopit.weedfs.client.caching;
 
+import com.scoopit.weedfs.client.Location;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.scoopit.weedfs.client.Location;
 
 public class MapLookupCache implements LookupCache {
     ConcurrentHashMap<Long, List<Location>> cache = new ConcurrentHashMap<>();
@@ -25,7 +25,9 @@ public class MapLookupCache implements LookupCache {
 
     @Override
     public void setLocation(long volumeId, List<Location> locations) {
-        cache.put(volumeId, locations);
+        if (locations != null) {
+            cache.put(volumeId, locations);
+        }
     }
 
 }
