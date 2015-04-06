@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class WeedFSClientImpl implements WeedFSClient {
 
@@ -58,17 +60,29 @@ class WeedFSClientImpl implements WeedFSClient {
 
     @Override
     public Assignation assign(AssignParams params) throws IOException, WeedFSException {
+        boolean hasUrlParam = false;
         StringBuilder url = new StringBuilder(new URL(masterURL, "/dir/assign").toExternalForm());
-        url.append("?count=");
-        url.append(params.versionCount);
+        Map<String, Object> urlParams = new HashMap<>();
+
+        if (params.versionCount > 0) {
+            urlParams.put("count", params.versionCount);
+        }
+
         if (params.replicationStrategy != null) {
-            url.append("&replication=");
-            url.append(params.replicationStrategy.parameterValue);
+            urlParams.put("replication", params.replicationStrategy.parameterValue);
         }
 
         if (params.collection != null) {
-            url.append("&collection=");
-            url.append(params.collection);
+            urlParams.put("collection", params.collection);
+        }
+
+        for (Map.Entry<String, Object> param : urlParams.entrySet()) {
+            url.append((hasUrlParam) ? '&' : '?');
+            url.append(param.getKey());
+            url.append('=');
+            url.append(param.getValue());
+
+            hasUrlParam = true;
         }
 
         HttpGet get = new HttpGet(url.toString());
