@@ -27,4 +27,23 @@ public class Location {
     public String toString() {
         return "Location [publicUrl=" + publicUrl + ", url=" + url + "]";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Location location = (Location) o;
+
+        if (publicUrl != null ? !publicUrl.equals(location.publicUrl) : location.publicUrl != null) return false;
+        return !(url != null ? !url.equals(location.url) : location.url != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = publicUrl != null ? publicUrl.hashCode() : 0;
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        return result;
+    }
 }
