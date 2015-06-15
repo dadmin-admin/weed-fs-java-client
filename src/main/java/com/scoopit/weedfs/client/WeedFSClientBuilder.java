@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.scoopit.weedfs.client.caching.LookupCache;
@@ -71,7 +72,15 @@ public class WeedFSClientBuilder {
 
         if (httpClient == null) {
             // minimal http client
-            httpClient = HttpClientBuilder.create().build();
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(5000)
+                    .setConnectTimeout(5000)
+                    .build();
+
+            httpClient = HttpClientBuilder
+                    .create()
+                    .setDefaultRequestConfig(config)
+                    .build();
         }
 
         return new WeedFSClientImpl(masterUrl, httpClient, lookupCache);
