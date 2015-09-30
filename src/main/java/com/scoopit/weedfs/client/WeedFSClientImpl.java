@@ -118,6 +118,11 @@ class WeedFSClientImpl implements WeedFSClient {
         url.append("/");
         url.append(file.fid);
 
+        if (file.version > 0) {
+            url.append("_");
+            url.append(file.version);
+        }
+
         HttpDelete delete = new HttpDelete(url.toString());
         try {
             HttpResponse response = httpClient.execute(delete);
