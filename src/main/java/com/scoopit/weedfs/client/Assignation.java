@@ -38,6 +38,14 @@ public class Assignation {
     public Assignation() {
     }
 
+    public String getFid() {
+        return weedFSFile.fid;
+    }
+
+    public long getVolumeId() {
+        return weedFSFile.getVolumeId();
+    }
+
     @Override
     public String toString() {
         return "AssignedWeedFSFile [weedFSFile=" + weedFSFile + ", location=" + location + ", versionCount=" + versionCount + "]";
