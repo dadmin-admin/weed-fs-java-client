@@ -35,6 +35,14 @@ public class WeedFSFile {
         this.version = version;
     }
 
+    public String getFid() {
+        return fid;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
     public long getVolumeId() {
         if (volumeId == 0) {
             int pos = fid.indexOf(',');
