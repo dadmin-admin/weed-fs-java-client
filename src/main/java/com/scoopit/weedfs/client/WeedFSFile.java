@@ -21,6 +21,8 @@ package com.scoopit.weedfs.client;
 
 public class WeedFSFile {
 
+    public static final WeedFSFile EMPTY = new WeedFSFile(null, 0);
+
     public final String fid;
     private long volumeId = 0;
     private String cookie = null;
@@ -44,7 +46,7 @@ public class WeedFSFile {
     }
 
     public long getVolumeId() {
-        if (volumeId == 0) {
+        if (volumeId == 0 && fid != null) {
             int pos = fid.indexOf(',');
             if (pos == -1) {
                 throw new IllegalArgumentException("Cannot parse fid: " + fid);
@@ -60,7 +62,7 @@ public class WeedFSFile {
     }
 
     public String getCookie() {
-        if (cookie == null) {
+        if (cookie == null && fid != null) {
             int pos = fid.indexOf(',');
             if (pos == -1) {
                 throw new IllegalArgumentException("Cannot parse fid: " + fid);
