@@ -27,7 +27,7 @@ public class Assignation {
 
     public Location location;
 
-    int versionCount;
+    private int versionCount;
 
     public Assignation(AssignResult result) {
         this.weedFSFile = result.getWeedFSFile();
@@ -44,6 +44,10 @@ public class Assignation {
 
     public long getVolumeId() {
         return weedFSFile.getVolumeId();
+    }
+
+    public int getVersionCount() {
+        return versionCount;
     }
 
     @Override
