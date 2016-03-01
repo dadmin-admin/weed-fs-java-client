@@ -25,8 +25,16 @@ public class WeedFSException extends IOException {
 
     private static final long serialVersionUID = 1L;
 
+    private String body;
+
     public WeedFSException(String reason) {
+        this(reason, (String) null);
+    }
+
+    public WeedFSException(String reason, String body) {
         super(reason);
+
+        this.body = body;
     }
 
     public WeedFSException(Exception cause) {
@@ -37,4 +45,7 @@ public class WeedFSException extends IOException {
         super(reason, cause);
     }
 
+    public String getBody() {
+        return body;
+    }
 }

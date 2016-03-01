@@ -37,6 +37,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -130,7 +131,7 @@ class WeedFSClientImpl implements WeedFSClient {
             StatusLine line = response.getStatusLine();
             if (line.getStatusCode() < 200 || line.getStatusCode() > 299) {
                 throw new WeedFSException("Error deleting file " + file.fid + " on " + location.publicUrl + ": " + line.getStatusCode() + " "
-                        + line.getReasonPhrase());
+                        + line.getReasonPhrase(), EntityUtils.toString(response.getEntity(), "UTF-8"));
             }
         } finally {
             delete.abort();
