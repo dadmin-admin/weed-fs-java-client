@@ -19,6 +19,7 @@
  */
 package com.scoopit.weedfs.client.net;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.scoopit.weedfs.client.Location;
 
 import java.util.List;
@@ -28,4 +29,8 @@ public class LookupResult extends Result {
     public long volumeId;
     public List<Location> locations;
 
+    @JsonSetter("volumeOrFileId")
+    public void setVolumeId(long volumeId) {
+        this.volumeId = volumeId;
+    }
 }
